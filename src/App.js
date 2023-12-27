@@ -1,27 +1,31 @@
-import logo from './logo.svg';
 import './App.css';
+import { CssBaseline, ThemeProvider, Typography } from "@mui/material";
+import { createTheme } from "@mui/material/styles"; // Import createTheme from @mui/material/styles
+
+const theme = createTheme({
+  palette: {
+    mode: "dark", 
+    primary : {
+      main : '#333333'
+    },
+    secondary : {
+      main : "#FFD700"
+    }
+  },
+});
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <p>
-          This is in production mode, Anything change done production branch will be observed here :)
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+
+      Hellow World, this is dark mode :)
+
+
+
+
+
+    </ThemeProvider>
   );
 }
 
