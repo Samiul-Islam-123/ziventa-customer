@@ -7,8 +7,10 @@ import PasswordReset from "../Auth/PasswordReset";
 import OTPVerification from "../Auth/OTPVerification"
 import LandingPage from './LandingPage/LandingPage';
 import Products from './Products/Products';
-import ProductDetails from '../Private/ProductDetails/ProductDetails';
 import { checkAuthentication } from '../auth';
+import Cart from "../Private/Cart/Cart"
+import Profile from "./../Private/Profile/Profile"
+import ProductDetails from "../Private/ProductDetails/ProductDetails"
 
 function RoutesController() {
   return (
@@ -36,6 +38,18 @@ function RoutesController() {
           element={<ProductDetails checkAuthentication={checkAuthentication} />}
         />
         
+        <Route
+          exact
+          path="/cart"
+          element={<Cart checkAuthentication={checkAuthentication} />}
+        />
+
+<Route
+          exact
+          path="/profile"
+          element={<Profile checkAuthentication={checkAuthentication} />}
+        />
+
       </Routes>
     </>
   )

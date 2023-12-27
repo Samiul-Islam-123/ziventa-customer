@@ -8,7 +8,6 @@ import {
   Container,
   Divider,
   Grid,
-  Icon,
   IconButton,
   Typography,
 } from "@mui/material";
@@ -17,13 +16,12 @@ import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
-import { useNavigate } from "react-router-dom";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { loadStripe } from "@stripe/stripe-js";
+import { useNavigate } from "react-router-dom";
 
 function Cart(props) {
   const navigate = useNavigate();
-
 
   const [CartData, setCartData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -66,26 +64,6 @@ function Cart(props) {
     }));
   };
 
-  useEffect(() => {
-    if (props.checkAuthentication()) fetchCartData();
-    else {
-      navigate("/login");
-    }
-  }, []);
-
-  useEffect(() => {
-    if (CartData) {
-      // Calculate the total product price by iterating through the cart items
-      const totalPrice = CartData.reduce((acc, item) => {
-        const productPrice = item.ProductPrice;
-        const quantity = productQuantities[item._id];
-        return acc + productPrice * quantity;
-      }, 0);
-
-      setTotalProductPrice(totalPrice);
-    }
-  }, [CartData, productQuantities]);
-
   const placeOrder = async () => {
     setLoading(true);
     const token = Cookies.get("access_token");
@@ -104,7 +82,6 @@ function Cart(props) {
       products: products,
     });
     //if (res.data.message == "OK") navigate("/profile");
-
 
     setLoading(false);
   };
@@ -128,16 +105,37 @@ function Cart(props) {
     });
     const session = res.data;
 
-    const result = stripe.redirectToCheckout({
+    const result = await stripe.redirectToCheckout({
       sessionId: session.id,
     });
 
-    await placeOrder();
-
     if (result.error) {
       console.log(result.error);
+    } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+      // Payment succeeded, place the order
+      await placeOrder();
     }
   };
+
+  useEffect(() => {
+    if (props.checkAuthentication()) fetchCartData();
+    else {
+      navigate("/login");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (CartData) {
+      // Calculate the total product price by iterating through the cart items
+      const totalPrice = CartData.reduce((acc, item) => {
+        const productPrice = item.ProductPrice;
+        const quantity = productQuantities[item._id];
+        return acc + productPrice * quantity;
+      }, 0);
+
+      setTotalProductPrice(totalPrice);
+    }
+  }, [CartData, productQuantities]);
 
   return (
     <Container>

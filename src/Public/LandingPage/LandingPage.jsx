@@ -42,15 +42,30 @@ function LandingPage() {
       finalKidsData = [];
 
     Mendata.map((item) => {
-      finalMenData.push(item.ProductImages[0]);
+      finalMenData.push({
+        imageURL : item.ProductImages[0],
+        _id : item._id,
+        ProductTitle : item.ProductTitle,
+        ProductPrice : item.ProductPrice
+      });
     });
 
     Womendata.map((item) => {
-      finalWomenData.push(item.ProductImages[0]);
+      finalWomenData.push({
+        imageURL : item.ProductImages[0],
+        _id : item._id,
+        ProductTitle : item.ProductTitle,
+        ProductPrice : item.ProductPrice
+      });
     });
 
     Kidsdata.map((item) => {
-      finalKidsData.push(item.ProductImages[0]);
+      finalKidsData.push({
+        imageURL : item.ProductImages[0],
+        _id : item._id,
+        ProductTitle : item.ProductTitle,
+        ProductPrice : item.ProductPrice
+      })
     });
 
     setMenProducts(finalMenData);
@@ -111,7 +126,11 @@ function LandingPage() {
           {menProducts
             ? menProducts.map((item, index) => (
                 <Grid item xs={12} md={4} key={index}>
-                  <ProductCard imageURL={item} imagwWidth="300px" imageHeight="500px" />
+                  <ProductCard imageURL={item.imageURL} 
+                  ProductTitle={item.ProductTitle}
+                  ProductPrice={item.ProductPrice}
+                  _id={item._id}
+                  imagwWidth="300px" imageHeight="500px" />
                 </Grid>
               ))
             : null}
@@ -124,7 +143,11 @@ function LandingPage() {
           {womenProducts
             ? womenProducts.map((item, index) => (
                 <Grid item xs={12} md={4} key={index}>
-                  <ProductCard imageURL={item} imagwWidth="300px" imageHeight="500px" />
+                  <ProductCard imageURL={item.imageURL} 
+                  ProductTitle={item.ProductTitle}
+                  ProductPrice={item.ProductPrice}
+                  _id={item._id}
+                  imagwWidth="300px" imageHeight="500px" />
                 </Grid>
               ))
             : null}
@@ -137,7 +160,11 @@ function LandingPage() {
           {kidsProducts
             ? kidsProducts.map((item, index) => (
                 <Grid item xs={12} md={4} key={index}>
-                  <ProductCard imageURL={item} imagwWidth="300px" imageHeight="500px" />
+                  <ProductCard imageURL={item.imageURL} 
+                  ProductTitle={item.ProductTitle}
+                  ProductPrice={item.ProductPrice}
+                  _id={item._id}
+                  imagwWidth="300px" imageHeight="500px" />
                 </Grid>
               ))
             : null}
