@@ -1,23 +1,71 @@
 import { Container, Grid, Typography } from '@mui/material';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import ImageCarousel from '../ImageCarousel/ImageCarousel';
 import ProductCard from '../ProductCard';
 import Footer from './Footer';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper-bundle.css';
-
+import axios from 'axios';
+import apiURL from '../../apiURL';
+import Cookies from 'js-cookie';
+import Backdrop from "@mui/material/Backdrop";
+import CircularProgress from "@mui/material/CircularProgress";
 
 function LandingPage() {
+  const [loading, setLoading] = useState(false);
+  const [popularProducts, setPopularProducts] = useState(null);
+  const [menProducts, setMenProducts] = useState(null);
+  const [womenProducts, setWomenProducts] = useState(null);
+  const [kidsProducts, setKidsProducts] = useState(null);
+
+  const fetchProducts = async (category) => {
+    setLoading(true);
+    const token = Cookies.get("access_token");
+    const response = await axios.get(
+      `${apiURL}/app/client/products/${category}`
+    );
+    if (response.data.message === "OK") return response.data.products;
+    else {
+      return response.data;
+    }
+    setLoading(false);
+  };
+
+  const arrangeData = async () => {
+    setLoading(true);
+    const Mendata = await fetchProducts('men');
+    const Womendata = await fetchProducts('women');
+    const Kidsdata = await fetchProducts('kids');
+
+    var finalMenData = [],
+      finalWomenData = [],
+      finalKidsData = [];
+
+    Mendata.map((item) => {
+      finalMenData.push(item.ProductImages[0]);
+    });
+
+    Womendata.map((item) => {
+      finalWomenData.push(item.ProductImages[0]);
+    });
+
+    Kidsdata.map((item) => {
+      finalKidsData.push(item.ProductImages[0]);
+    });
+
+    setMenProducts(finalMenData);
+    setWomenProducts(finalWomenData);
+    setKidsProducts(finalKidsData);
+
+    console.log(Mendata, Womendata, Kidsdata);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    arrangeData();
+  }, []);
+
   const images = [
-    'https://images.pexels.com/photos/346529/pexels-photo-346529.jpeg?auto=compress&cs=tinysrgb&w=600',
-    'https://images.pexels.com/photos/247599/pexels-photo-247599.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/355465/pexels-photo-355465.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/346529/pexels-photo-346529.jpeg?auto=compress&cs=tinysrgb&w=600',
-    'https://images.pexels.com/photos/247599/pexels-photo-247599.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/355465/pexels-photo-355465.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/346529/pexels-photo-346529.jpeg?auto=compress&cs=tinysrgb&w=600',
-    'https://images.pexels.com/photos/247599/pexels-photo-247599.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/355465/pexels-photo-355465.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
     'https://images.pexels.com/photos/346529/pexels-photo-346529.jpeg?auto=compress&cs=tinysrgb&w=600',
     'https://images.pexels.com/photos/247599/pexels-photo-247599.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
     'https://images.pexels.com/photos/355465/pexels-photo-355465.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
@@ -36,54 +84,65 @@ function LandingPage() {
     },
     autoplay: {
       delay: 1000, // Set the delay between slides in milliseconds
-      
     },
   };
 
   return (
     <>
       <Container>
+        {loading ? (
+          <Backdrop
+            sx={{
+              color: "#fff",
+              zIndex: (theme) => theme.zIndex.drawer + 1,
+            }}
+            open={loading}
+          >
+            <CircularProgress color="inherit" />
+          </Backdrop>
+        ) : null}
+
         <ImageCarousel images={images} />
-        {/* Trending products */}
         <Typography variant="h3" style={{ marginTop: '40px', marginBottom: '40px' }}>
           Men
         </Typography>
 
-        <Swiper {...swiperParams}>
-          {images.map((item, index) => (
-            <SwiperSlide key={index}>
-              <ProductCard imageURL={item} imagwWidth="300px" imageHeight="400px" />
-            </SwiperSlide>
-          ))}
-        </Swiper>
+        <Grid container spacing={2}>
+          {menProducts
+            ? menProducts.map((item, index) => (
+                <Grid item xs={12} md={4} key={index}>
+                  <ProductCard imageURL={item} imagwWidth="300px" imageHeight="500px" />
+                </Grid>
+              ))
+            : null}
+        </Grid>
 
-        <div style={{ marginTop: '50px' }}>
-          <Typography variant="h3" style={{ marginTop: '40px', marginBottom: '40px' }}>
-            Women
-          </Typography>
-        </div>
+        <Typography variant="h3" style={{ marginTop: '40px', marginBottom: '40px' }}>
+          Women
+        </Typography>
+        <Grid container spacing={2}>
+          {womenProducts
+            ? womenProducts.map((item, index) => (
+                <Grid item xs={12} md={4} key={index}>
+                  <ProductCard imageURL={item} imagwWidth="300px" imageHeight="500px" />
+                </Grid>
+              ))
+            : null}
+        </Grid>
 
-        <Swiper {...swiperParams}>
-          {images.map((item, index) => (
-            <SwiperSlide key={index}>
-              <ProductCard imageURL={item} imagwWidth="300px" imageHeight="500px" />
-            </SwiperSlide>
-          ))}
-        </Swiper>
+        <Typography variant="h3" style={{ marginTop: '40px', marginBottom: '40px' }}>
+          Kids
+        </Typography>
+        <Grid container spacing={2}>
+          {kidsProducts
+            ? kidsProducts.map((item, index) => (
+                <Grid item xs={12} md={4} key={index}>
+                  <ProductCard imageURL={item} imagwWidth="300px" imageHeight="500px" />
+                </Grid>
+              ))
+            : null}
+        </Grid>
 
-        <div style={{ marginTop: '50px' }}>
-          <Typography variant="h3" style={{ marginTop: '40px', marginBottom: '40px' }}>
-            Kids
-          </Typography>
-        </div>
-
-        <Swiper {...swiperParams}>
-          {images.map((item, index) => (
-            <SwiperSlide key={index}>
-              <ProductCard imageURL={item} imagwWidth="300px" imageHeight="500px" />
-            </SwiperSlide>
-          ))}
-        </Swiper>
       </Container>
 
       <Footer />

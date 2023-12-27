@@ -6,7 +6,9 @@ import PasswordResetVerification from "../Auth/PasswordResetVerification";
 import PasswordReset from "../Auth/PasswordReset";
 import OTPVerification from "../Auth/OTPVerification"
 import LandingPage from './LandingPage/LandingPage';
-
+import Products from './Products/Products';
+import ProductDetails from '../Private/ProductDetails/ProductDetails';
+import { checkAuthentication } from '../auth';
 
 function RoutesController() {
   return (
@@ -26,8 +28,13 @@ function RoutesController() {
           path="/otp-verification/:email"
           element={<OTPVerification />}
         />
-        
+        <Route exact path="/products/:category" element={<Products />} />
 
+        <Route
+          exact
+          path="/products/details/:ProductID"
+          element={<ProductDetails checkAuthentication={checkAuthentication} />}
+        />
         
       </Routes>
     </>
