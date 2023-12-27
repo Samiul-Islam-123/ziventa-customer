@@ -4,17 +4,13 @@ import { useParams } from "react-router-dom";
 import apiURL from "../../apiURL";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
-import { Button, Card, Container, Divider, Typography } from "@mui/material";
+import { Button, Container, Divider, Typography } from "@mui/material";
 import { Grid } from "@mui/material";
-import { autoPlay } from "react-swipeable-views-utils";
-import SwipeableViews from "react-swipeable-views";
-import { useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Cookies from "js-cookie";
 import Snackbar from "@mui/material/Snackbar";
 import { useNavigate } from "react-router-dom";
 
-const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 function ProductDetails(props) {
   const [open, setOpen] = React.useState(false);
 
@@ -22,9 +18,8 @@ function ProductDetails(props) {
   const [loading, setLoading] = useState(false);
   const [productDetails, setProductDetails] = useState(null);
   const [snackBarMessage, setSnackBarMessage] = useState("");
-  const theme = useTheme();
-  const [activeStep, setActiveStep] = React.useState(0);
   const navigate = useNavigate();
+  const [activeStep, setActiveStep] = React.useState(0);
 
   const handleClick = () => {
     setOpen(true);
@@ -39,15 +34,18 @@ function ProductDetails(props) {
   };
 
   const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    setActiveStep(
+      (prevActiveStep) =>
+        (prevActiveStep + 1) % productDetails.ProductImages.length
+    );
   };
 
   const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
-  const handleStepChange = (step) => {
-    setActiveStep(step);
+    setActiveStep(
+      (prevActiveStep) =>
+        (prevActiveStep - 1 + productDetails.ProductImages.length) %
+        productDetails.ProductImages.length
+    );
   };
 
   const fetchProductData = async () => {
@@ -64,17 +62,13 @@ function ProductDetails(props) {
       console.log(res);
     }
 
-    //const maxSteps = productDetails.ProductImages.length;
-
     setLoading(false);
   };
 
   useEffect(() => {
-    if(props.checkAuthentication())
-    fetchProductData();
-
-    else{
-      navigate('/login')
+    if (props.checkAuthentication()) fetchProductData();
+    else {
+      navigate("/login");
     }
   }, []);
 
@@ -99,31 +93,30 @@ function ProductDetails(props) {
           <>
             <Grid container>
               <Grid item xs={12} md={6}>
-                <AutoPlaySwipeableViews
-                  axis={theme.direction === "rtl" ? "x-reverse" : "x"}
-                  index={activeStep}
-                  onChangeIndex={handleStepChange}
-                  enableMouseEvents
-                >
-                  {productDetails.ProductImages.map((step, index) => (
-                    <div key={step.label}>
-                      {Math.abs(activeStep - index) <= 2 ? (
-                        <Box
-                          component="img"
-                          sx={{
-                            height: 255,
-                            display: "block",
-                            maxWidth: 400,
-                            overflow: "hidden",
-                            width: "100%",
-                            height: "auto",
-                          }}
-                          src={step}
-                        />
-                      ) : null}
-                    </div>
-                  ))}
-                </AutoPlaySwipeableViews>
+                <Box
+                  component="img"
+                  sx={{
+                    width: "100%",     // Set width to 100%
+                    height: "50vh",    // Set height to 50vh
+                    display: "block",
+                    overflow: "hidden",
+                    objectFit: "contain",  // Set objectFit to contain
+                  }}
+                  src={productDetails.ProductImages[activeStep]}
+                />
+                <div>
+                  <Button disabled={activeStep === 0} onClick={handleBack}>
+                    Back
+                  </Button>
+                  <Button
+                    disabled={
+                      activeStep === productDetails.ProductImages.length - 1
+                    }
+                    onClick={handleNext}
+                  >
+                    Next
+                  </Button>
+                </div>
               </Grid>
               <Grid item xs={12} md={6}>
                 {/* Details Container */}
@@ -156,19 +149,17 @@ function ProductDetails(props) {
                         }
                       );
 
-                      console.log(res.data.message === "OK")
+                      console.log(res.data.message === "OK");
 
-                      if (res.data.message === "OK") setSnackBarMessage("Item Added to Cart")
+                      if (res.data.message === "OK")
+                        setSnackBarMessage("Item Added to Cart");
 
-                      if(res.data.message == "error"){
+                      if (res.data.message === "error") {
                         alert(res.data.message);
                         console.error(res);
-
-                      }
-
-                      else {
-                        setOpen(true)
-                        setSnackBarMessage(res.data.message)
+                      } else {
+                        setOpen(true);
+                        setSnackBarMessage(res.data.message);
                       }
 
                       setLoading(false);
