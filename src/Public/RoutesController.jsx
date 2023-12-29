@@ -11,6 +11,7 @@ import { checkAuthentication } from '../auth';
 import Cart from "../Private/Cart/Cart"
 import Profile from "./../Private/Profile/Profile"
 import ProductDetails from "../Private/ProductDetails/ProductDetails"
+import Success from '../Private/Success/Success';
 
 function RoutesController() {
   return (
@@ -46,8 +47,20 @@ function RoutesController() {
 
 <Route
           exact
+          path="/cart/:orderID"
+          element={<Cart checkAuthentication={checkAuthentication} />}
+        />
+
+<Route
+          exact
           path="/profile"
           element={<Profile checkAuthentication={checkAuthentication} />}
+        />
+
+<Route
+          exact
+          path="/success/:ID"
+          element={<Success checkAuthentication={checkAuthentication} />}
         />
 
       </Routes>
