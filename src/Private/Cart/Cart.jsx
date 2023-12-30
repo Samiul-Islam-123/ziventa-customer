@@ -10,6 +10,7 @@ import {
   Grid,
   Icon,
   IconButton,
+  TextField,
   Typography,
 } from "@mui/material";
 import apiURL from "../../apiURL";
@@ -40,6 +41,10 @@ const {orderID} = useParams();
   const [loading, setLoading] = useState(false);
   const [productQuantities, setProductQuantities] = useState({});
   const [totalProductPrice, setTotalProductPrice] = useState(0);
+
+  const [showCartData, setShowCartData] = useState(false);
+  const [userAddress, setUserAddress] = useState(null);
+  const [userPhone, setUserPhone] = useState(null)
 
   const fetchCartData = async () => {
 
@@ -78,10 +83,22 @@ const {orderID} = useParams();
     }));
   };
 
+  const checkLocalData = ()=>{
+    const localAddressData = JSON.parse(localStorage.getItem('address'))
+      if(localAddressData!=null)
+      {
+        setShowCartData(true);
+      }
+
+      else{
+        setShowCartData(false);
+      }
+  }
+
   useEffect(() => {
     if (props.checkAuthentication()) {
       fetchCartData();
-      
+      checkLocalData();
     }
     else {
       navigate("/login");
@@ -123,6 +140,7 @@ const {orderID} = useParams();
       Cartproducts : Cartproducts,
       token : token,
       OrderPrice : totalProductPrice
+
     };
     
     localStorage.setItem('cart', JSON.stringify(DatatoBeStored));
@@ -158,19 +176,10 @@ const {orderID} = useParams();
     <Container>
     <Typography variant="h4">My Cart</Typography>
 
-    {loading && (
-      <Backdrop
-        sx={{
-          color: "#fff",
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-        }}
-        open={loading}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
-    )}
+    {
+      showCartData ? (<>
 
-    {CartData && CartData.length === 0 ? (
+{CartData && CartData.length === 0 ? (
       <Typography variant="h6" align="center" style={{ marginTop: "20px" }}>
         No items in the cart.
       </Typography>
@@ -201,7 +210,7 @@ const {orderID} = useParams();
                   <div>
                     {/* Your existing code for rendering product details */}
                     <Typography variant="h4">{item.ProductTitle}</Typography>
-                    <Typography>{item.ProductDescription}</Typography>
+                    
                     <Button
                       style={{
                         marginTop: "20px",
@@ -329,6 +338,51 @@ const {orderID} = useParams();
         </CardContent>
       </Card>
     )}
+
+      </>) : (<>
+        <Typography variant="h7" margin={"10px"}>
+          Please Enter your Address and Phone number to view Cart Details and Place Order
+        </Typography>
+        <TextField  margin={"10px"} onChange={(e)=>{
+          setUserAddress(e.target.value)
+        }} variant="outlined" fullWidth label="Enter your Address" multiline rows={4}/>
+    <TextField  margin={"10px"} onChange={(e)=>{
+          setUserPhone(e.target.value)
+        }} variant="outlined" fullWidth label="Enter your Contact Number"/>
+
+    <Button  variant="contained" onClick={()=>{
+      if(userAddress && userPhone){
+        localStorage.setItem('address', JSON.stringify({
+          address : userAddress,
+          phone : userPhone
+        }))
+        checkLocalData();
+      }
+      else
+      {
+        alert("Please Enter both fields")
+      }
+    }}>
+      Save Address
+    </Button>
+
+      </>)
+    }
+    
+
+    {loading && (
+      <Backdrop
+        sx={{
+          color: "#fff",
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+        }}
+        open={loading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+    )}
+
+   
   </Container>
   );
 }

@@ -60,7 +60,7 @@ function RoutesController() {
 <Route
           exact
           path="/success/:ID"
-          element={<Success checkAuthentication={checkAuthentication} />}
+          element={<Success />}
         />
 
       </Routes>
