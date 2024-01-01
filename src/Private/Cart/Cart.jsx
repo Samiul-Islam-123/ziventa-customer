@@ -33,9 +33,9 @@ function Cart(props) {
   const queryParams = new URLSearchParams(location.search);
   const successParam = queryParams.get('success');
   const navigate = useNavigate();
-const {orderID} = useParams();
+  const { orderID } = useParams();
 
-//console.log(cart)
+  //console.log(cart)
 
   const [CartData, setCartData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -83,16 +83,15 @@ const {orderID} = useParams();
     }));
   };
 
-  const checkLocalData = ()=>{
+  const checkLocalData = () => {
     const localAddressData = JSON.parse(localStorage.getItem('address'))
-      if(localAddressData!=null)
-      {
-        setShowCartData(true);
-      }
+    if (localAddressData != null) {
+      setShowCartData(true);
+    }
 
-      else{
-        setShowCartData(false);
-      }
+    else {
+      setShowCartData(false);
+    }
   }
 
   useEffect(() => {
@@ -118,15 +117,40 @@ const {orderID} = useParams();
     }
   }, [CartData, productQuantities]);
 
+  const placeOrder = async (CartData) => {
+    console.log('PLacing Order...');
+    if (CartData) {
+      const address = localStorage.getItem('address');
+      const addressJSON = JSON.parse(address);
+      const res = await axios.post(`${apiURL}/app/client/place-order`, {
+        token: CartData.token,
+        OrderPrice: CartData.OrderPrice,
+        products: CartData.Cartproducts,
+        address: addressJSON.address,
+        Phone: addressJSON.phone,
+      });
+
+      if (res.data.message === 'OK') 
+        return res.data.placedOrderID;
+
+      else {
+        alert('Error occurred :(');
+        console.log(res);
+      }
+    } else {
+      console.log('Cart Data not found');
+    }
+  };
+
 
   const checkoutPayment = async () => {
     //const orderId = await placeOrder();
-    
+
     const token = Cookies.get('access_token');
-    
-    
+
+
     //arrainging data for cartproducts
-    
+
     const Cartproducts = [];
     CartData.forEach((item) => {
       Cartproducts.push({
@@ -134,17 +158,19 @@ const {orderID} = useParams();
         Qty: productQuantities[item._id],
       });
     });
-    
+
     //Storing Cart Data into Local Storage
     const DatatoBeStored = {
-      Cartproducts : Cartproducts,
-      token : token,
-      OrderPrice : totalProductPrice
+      Cartproducts: Cartproducts,
+      token: token,
+      OrderPrice: totalProductPrice
 
     };
-    
-    localStorage.setItem('cart', JSON.stringify(DatatoBeStored));
-    
+
+    //const placedOrderID = placeOrder(DatatoBeStored)
+    const placedOrderID =await placeOrder(DatatoBeStored)
+    //console.log(placedOrderID)
+
     //processes for Stripe Payment
     const products = [];
     CartData.map((item) => {
@@ -159,6 +185,7 @@ const {orderID} = useParams();
 
     const res = await axios.post(`${apiURL}/app/client/checkout-payment`, {
       products: products,
+      placedOrderID : placedOrderID
     });
     const session = res.data;
 
@@ -169,221 +196,230 @@ const {orderID} = useParams();
     });
 
 
-   
+
   };
 
   return (
     <Container>
-    <Typography variant="h4">My Cart</Typography>
+      <Typography variant="h4">My Cart</Typography>
 
-    {
-      showCartData ? (<>
+      {
+        showCartData ? (<>
 
-{CartData && CartData.length === 0 ? (
-      <Typography variant="h6" align="center" style={{ marginTop: "20px" }}>
-        No items in the cart.
-      </Typography>
-    ) : (
-      CartData &&
-      CartData.map((item, index) => (
-        <div
-          key={index}
-          style={{
-            marginTop: "10px",
-            marginBottom: "10px",
-          }}
-        >
-          <Card>
-            <CardContent>
-              <Grid container>
-                <Grid item xs={3}>
-                  {/* Your existing code for rendering product image */}
-                  <div style={{ textAlign: "center" }}>
-                    <img
-                      src={item.ProductImages[0]}
-                      alt="Product image"
-                      width={"50%"}
-                    />
-                  </div>
-                </Grid>
-                <Grid item xs={6}>
-                  <div>
-                    {/* Your existing code for rendering product details */}
-                    <Typography variant="h4">{item.ProductTitle}</Typography>
-                    
-                    <Button
-                      style={{
-                        marginTop: "20px",
-                      }}
-                      variant="outlined"
-                      onClick={() => {
-                        navigate("/products/details/" + item._id);
-                      }}
-                    >
-                      View Product Details
-                    </Button>
-                    <IconButton
-                      onClick={async () => {
-                        if (
-                          window.confirm(
-                            "Do you really want to Remove this Product from Cart ?"
-                          ) == true
-                        ) {
-                          const token = Cookies.get("access_token");
-                          console.log(token);
-                          const res = await axios.post(
-                            `${apiURL}/app/client/remove-item`,
-                            {
-                              token: token,
-                              productID: item._id,
-                            }
-                          );
+          {CartData && CartData.length === 0 ? (
+            <Typography variant="h6" align="center" style={{ marginTop: "20px" }}>
+              No items in the cart.
+            </Typography>
+          ) : (
+            CartData &&
+            CartData.map((item, index) => (
+              <div
+                key={index}
+                style={{
+                  marginTop: "10px",
+                  marginBottom: "10px",
+                }}
+              >
+                <Card>
+                  <CardContent>
+                    <Grid container>
+                      <Grid item xs={3}>
+                        {/* Your existing code for rendering product image */}
+                        <div style={{ textAlign: "center" }}>
+                          <img
+                            src={item.ProductImages[0]}
+                            alt="Product image"
+                            width={"50%"}
+                          />
+                        </div>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <div>
+                          {/* Your existing code for rendering product details */}
+                          <Typography variant="h4">{item.ProductTitle}</Typography>
 
-                          if (res.data.message == "OK") fetchCartData();
-                        }
-                      }}
-                      style={{
-                        marginTop: "20px",
-                        marginLeft: "50px",
-                      }}
-                      variant="outlined"
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </div>
-                </Grid>
-                <Grid item xs={3}>
-                  {/* Your existing code for rendering product price and quantity */}
-                  <div style={{ textAlign: "center" }}>
-                    <Typography variant="h6">
-                      Price : ₹ {productQuantities[item._id] * item.ProductPrice}
+                          <Button
+                            style={{
+                              marginTop: "20px",
+                            }}
+                            variant="outlined"
+                            onClick={() => {
+                              navigate("/products/details/" + item._id);
+                            }}
+                          >
+                            View Product Details
+                          </Button>
+                          <IconButton
+                            onClick={async () => {
+                              if (
+                                window.confirm(
+                                  "Do you really want to Remove this Product from Cart ?"
+                                ) == true
+                              ) {
+                                const token = Cookies.get("access_token");
+                                console.log(token);
+                                const res = await axios.post(
+                                  `${apiURL}/app/client/remove-item`,
+                                  {
+                                    token: token,
+                                    productID: item._id,
+                                  }
+                                );
+
+                                if (res.data.message == "OK") fetchCartData();
+                              }
+                            }}
+                            style={{
+                              marginTop: "20px",
+                              marginLeft: "50px",
+                            }}
+                            variant="outlined"
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </div>
+                      </Grid>
+                      <Grid item xs={3}>
+                        {/* Your existing code for rendering product price and quantity */}
+                        <div style={{ textAlign: "center" }}>
+                          <Typography variant="h6">
+                            Price : ₹ {productQuantities[item._id] * item.ProductPrice}
+                          </Typography>
+                          <div
+                            style={{
+                              marginTop: "10px",
+                              display: "flex",
+                              justifyContent: "space-evenly",
+                            }}
+                          >
+                            <IconButton
+                              onClick={() => decrementProduct(item._id)}
+                              style={{
+                                marginLeft: "50px",
+                              }}
+                            >
+                              <RemoveCircleIcon style={{ fontSize: 24 }} />
+                            </IconButton>
+                            <Typography variant="h5">
+                              {productQuantities[item._id]}
+                            </Typography>
+                            <IconButton onClick={() => incrementProduct(item._id)}>
+                              <AddCircleOutlineIcon style={{ fontSize: 24 }} />
+                            </IconButton>
+                          </div>
+                        </div>
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+                </Card>
+              </div>
+            ))
+          )}
+
+          {CartData && CartData.length > 0 && (
+            <Card
+              style={{
+                marginBottom: "300px",
+              }}
+            >
+              <CardContent>
+                <Grid container>
+                  <Grid item xs={10}>
+                    {/* Your existing code for displaying total price and checkout button */}
+                    <Typography variant="h4" align="center">
+                      Total Price : {/* Add your logic for calculating total price */}
                     </Typography>
+
                     <div
                       style={{
-                        marginTop: "10px",
+                        marginTop: "20px",
                         display: "flex",
-                        justifyContent: "space-evenly",
+                        justifyContent: "center",
                       }}
                     >
-                      <IconButton
-                        onClick={() => decrementProduct(item._id)}
-                        style={{
-                          marginLeft: "50px",
-                        }}
-                      >
-                        <RemoveCircleIcon style={{ fontSize: 24 }} />
-                      </IconButton>
-                      <Typography variant="h5">
-                        {productQuantities[item._id]}
-                      </Typography>
-                      <IconButton onClick={() => incrementProduct(item._id)}>
-                        <AddCircleOutlineIcon style={{ fontSize: 24 }} />
-                      </IconButton>
+                      <Button onClick={checkoutPayment} variant="contained">
+                        Proceed to checkout
+                      </Button>
                     </div>
-                  </div>
+                  </Grid>
+                  <Grid item xs={2}>
+                    <div
+                      style={{
+                        textAlign: "center",
+                      }}
+                    >
+                      {CartData &&
+                        CartData.map((item) => (
+                          <Typography variant="h6" key={item._id}>
+                            {/* Your logic for displaying individual item prices */}
+                            {productQuantities[item._id] * item.ProductPrice}
+                          </Typography>
+                        ))}
+                      <Divider />
+                      <Typography variant="h5">
+                        Total: ₹ {totalProductPrice} {/* Add your logic for total price */}
+                      </Typography>
+                    </div>
+                  </Grid>
                 </Grid>
-              </Grid>
-            </CardContent>
-          </Card>
-        </div>
-      ))
-    )}
+              </CardContent>
+            </Card>
+          )}
 
-    {CartData && CartData.length > 0 && (
-      <Card
-        style={{
-          marginBottom: "300px",
-        }}
-      >
-        <CardContent>
-          <Grid container>
-            <Grid item xs={10}>
-              {/* Your existing code for displaying total price and checkout button */}
-              <Typography variant="h4" align="center">
-                Total Price : {/* Add your logic for calculating total price */}
-              </Typography>
+        </>) : (<>
+          <Typography variant="h7" margin={"10px"}>
+            Please Enter your Address and Phone number to view Cart Details and Place Order
+          </Typography>
+          <TextField margin={"10px"} onChange={(e) => {
+            setUserAddress(e.target.value)
+          }} variant="outlined" fullWidth label="Enter your Address" multiline rows={4} />
+          <TextField margin={"10px"} onChange={(e) => {
+            setUserPhone(e.target.value)
+          }} variant="outlined" fullWidth label="Enter your Contact Number" />
 
-              <div
-                style={{
-                  marginTop: "20px",
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
-                <Button onClick={checkoutPayment} variant="contained">
-                  Proceed to checkout
-                </Button>
-              </div>
-            </Grid>
-            <Grid item xs={2}>
-              <div
-                style={{
-                  textAlign: "center",
-                }}
-              >
-                {CartData &&
-                  CartData.map((item) => (
-                    <Typography variant="h6" key={item._id}>
-                      {/* Your logic for displaying individual item prices */}
-                      {productQuantities[item._id] * item.ProductPrice}
-                    </Typography>
-                  ))}
-                <Divider />
-                <Typography variant="h5">
-                  Total: ₹ {totalProductPrice} {/* Add your logic for total price */}
-                </Typography>
-              </div>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
-    )}
+<Button
+  variant="contained"
+  onClick={() => {
+    if (userAddress && userPhone) {
+      // Check if userPhone contains only numeric characters
+      const isNumeric = /^\d+$/.test(userPhone);
 
-      </>) : (<>
-        <Typography variant="h7" margin={"10px"}>
-          Please Enter your Address and Phone number to view Cart Details and Place Order
-        </Typography>
-        <TextField  margin={"10px"} onChange={(e)=>{
-          setUserAddress(e.target.value)
-        }} variant="outlined" fullWidth label="Enter your Address" multiline rows={4}/>
-    <TextField  margin={"10px"} onChange={(e)=>{
-          setUserPhone(e.target.value)
-        }} variant="outlined" fullWidth label="Enter your Contact Number"/>
-
-    <Button  variant="contained" onClick={()=>{
-      if(userAddress && userPhone){
+      if (isNumeric) {
         localStorage.setItem('address', JSON.stringify({
-          address : userAddress,
-          phone : userPhone
-        }))
+          address: userAddress,
+          phone: userPhone
+        }));
         checkLocalData();
+      } else {
+        alert("Phone number should contain only numeric characters");
       }
-      else
-      {
-        alert("Please Enter both fields")
-      }
-    }}>
-      Save Address
-    </Button>
-
-      </>)
+    } else {
+      alert("Please enter both fields");
     }
-    
+  }}
+>
+  Save Address
+</Button>
 
-    {loading && (
-      <Backdrop
-        sx={{
-          color: "#fff",
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-        }}
-        open={loading}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
-    )}
 
-   
-  </Container>
+        </>)
+      }
+
+
+      {loading && (
+        <Backdrop
+          sx={{
+            color: "#fff",
+            zIndex: (theme) => theme.zIndex.drawer + 1,
+          }}
+          open={loading}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
+      )}
+
+
+    </Container>
   );
 }
 

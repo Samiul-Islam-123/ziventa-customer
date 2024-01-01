@@ -17,7 +17,7 @@ function ProductCard(props) {
             alt="Product Image"
             width={imageWidth}
             height={imageHeight}
-            style={{ objectFit: "none" }}
+            style={{ objectFit: "cover" }}
           />
 
           <Typography variant='h6'>

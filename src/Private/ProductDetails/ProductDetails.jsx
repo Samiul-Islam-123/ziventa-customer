@@ -4,12 +4,13 @@ import { useParams } from "react-router-dom";
 import apiURL from "../../apiURL";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
-import { Button, Container, Divider, Typography } from "@mui/material";
+import { Button, Card, CardContent, Container, Divider, Typography } from "@mui/material";
 import { Grid } from "@mui/material";
 import Box from "@mui/material/Box";
 import Cookies from "js-cookie";
 import Snackbar from "@mui/material/Snackbar";
 import { useNavigate } from "react-router-dom";
+import Footer from "../../Public/LandingPage/Footer"
 
 function ProductDetails(props) {
   const [open, setOpen] = React.useState(false);
@@ -126,11 +127,23 @@ function ProductDetails(props) {
                 <Typography variant="h7">
                   {productDetails.ProductDescription}
                 </Typography>
+                <Typography variant="h4" marginTop={"20px"} marginBottom={"10px"}>
+                  More Details : 
+                </Typography>
+
+                <Typography variant="h7">
+  <strong>Product Category :</strong> {productDetails.ProductMetaData.Category}
+  <br />
+  <strong>Age Range:</strong> {productDetails.ProductMetaData.AgeRange}
+</Typography>
+
+                
                 <div
                   style={{
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
+                    marginTop : "20px"
                   }}
                 >
                   <Typography variant="h4">
@@ -178,9 +191,42 @@ function ProductDetails(props) {
               }}
             />
 
-            <Typography variant="h3" align="center">
-              Product Reviews
-            </Typography>
+
+
+            {console.log(productDetails.Reviews.length)}
+            
+             {
+              productDetails.Reviews.length!=0 ? (<>
+                  <Typography variant="h3" align="center">
+                    Product Reviews
+                  </Typography>
+                <Card style={{
+                  marginBottom : "50px"
+            }}>
+              <CardContent>
+
+            <p>Reviews:</p>
+                    <ul>
+                      {productDetails.Reviews.map((review) => (
+                        <li key={review._id}>
+                          <p>Customer: {review.customer}</p>
+                          <p>Date: {review.Date}</p>
+                          <p style={{
+                            fontSize : "24px",
+                            fontWeight : "bold"
+                          }}>Review: {review.review}</p>
+                        </li>
+                      ))}
+                    </ul>
+                      </CardContent>
+            </Card>
+              </>) : <Typography variant="h6" style={{
+                  textAlign : "center",
+                  margin : "20px"
+              }}>
+                This product Did'nt got any reviews yet
+              </Typography>
+             }
 
             <Snackbar
               open={open}
@@ -191,6 +237,7 @@ function ProductDetails(props) {
           </>
         )}
       </Container>
+      <Footer />
     </>
   );
 }

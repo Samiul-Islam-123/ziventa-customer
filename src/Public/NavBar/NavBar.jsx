@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import DesktopNavBar from './DesktopNavBar';
 import { useState, useEffect } from 'react';
 import MobileNavBar from './MobileNavBar';
+import { Divider } from '@mui/material';
 function NavBar() {
 
     const [mobo, setMobo] = useState(window.innerWidth <= 700);
@@ -26,6 +27,8 @@ function NavBar() {
         <MobileNavBar />
         </>) : (<>
             <DesktopNavBar /></>)}
+            
+            <Divider />
         
     </>
   )

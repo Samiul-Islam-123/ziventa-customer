@@ -12,6 +12,8 @@ import Cart from "../Private/Cart/Cart"
 import Profile from "./../Private/Profile/Profile"
 import ProductDetails from "../Private/ProductDetails/ProductDetails"
 import Success from '../Private/Success/Success';
+import OrderHistory from '../Private/Profile/OrderHistory/OrderHistory';
+import ReviewProducts from '../Private/Profile/ReviewProducts/ReviewProducts';
 
 function RoutesController() {
   return (
@@ -54,7 +56,13 @@ function RoutesController() {
 <Route
           exact
           path="/profile"
-          element={<Profile checkAuthentication={checkAuthentication} />}
+          element={<OrderHistory checkAuthentication={checkAuthentication} />}
+        />
+
+<Route
+          exact
+          path="/review"
+          element={<ReviewProducts checkAuthentication={checkAuthentication} />}
         />
 
 <Route

@@ -24,6 +24,7 @@ function Profile(props) {
   const [reviews, setReviews] = useState(false);
   const navigate = useNavigate();
   const [userName, setUsername] = useState("");
+  const [orderData, setOrderData] = useState(null);
 
   const fetchUserData = async () => {
     const token = Cookies.get("access_token");
@@ -114,8 +115,8 @@ function Profile(props) {
           </Grid>
         </Toolbar>
 
-        {orderHistory && <OrderHistory />}
-        {reviews && <ReviewProducts />}
+        {orderHistory && <OrderHistory/>}
+        {reviews && <ReviewProducts/>}
       </Container>
     </>
   );

@@ -123,6 +123,7 @@ function LandingPage() {
         </Typography>
 
         <Grid container spacing={2}>
+          {console.log(menProducts)}
           {menProducts
             ? menProducts.map((item, index) => (
                 <Grid item xs={12} md={4} key={index}>
@@ -153,22 +154,7 @@ function LandingPage() {
             : null}
         </Grid>
 
-        <Typography variant="h3" style={{ marginTop: '40px', marginBottom: '40px' }}>
-          Kids
-        </Typography>
-        <Grid container spacing={2}>
-          {kidsProducts
-            ? kidsProducts.map((item, index) => (
-                <Grid item xs={12} md={4} key={index}>
-                  <ProductCard imageURL={item.imageURL} 
-                  ProductTitle={item.ProductTitle}
-                  ProductPrice={item.ProductPrice}
-                  _id={item._id}
-                  imagwWidth="300px" imageHeight="500px" />
-                </Grid>
-              ))
-            : null}
-        </Grid>
+       
 
       </Container>
 
