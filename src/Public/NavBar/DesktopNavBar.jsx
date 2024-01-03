@@ -20,14 +20,14 @@ function DesktopNavBar() {
                 </Typography>
 
                 <div style={{ display: "flex", alignItems: "center" }}>
-                    <Button color="inherit" onClick={() => navigate("/products/men")}>
-                        Men
+                    <Button color="inherit" onClick={() => navigate("/products/shirt")}>
+                        Shirts
                     </Button>
-                    <Button color="inherit" onClick={() => navigate("/products/women")}>
-                        Women
+                    <Button color="inherit" onClick={() => navigate("/products/t-shirt")}>
+                        T-Shirts
                     </Button>
-                    <Button color="inherit" onClick={() => navigate("/products/kids")}>
-                        Kids
+                    <Button color="inherit" onClick={() => navigate("/products/pant")}>
+                        Pants
                     </Button>
                 </div>
 

@@ -66,10 +66,12 @@ function Products() {
 
   const fetchProducts = async () => {
     setLoading(true)
+    //console.log(category)
     const token = Cookies.get("access_token");
     const response = await axios.get(
       `${apiURL}/app/client/products/${category}`
     );
+    //console.log(`Request URL : ${apiURL}/app/client/products/${category}`)
     //console.log(response);
     if (response.data.message == "OK") setProducts(response.data.products);
     else {
@@ -266,7 +268,7 @@ function Products() {
             marginBottom: "40px",
           }}
         >
-          {category}'s Wear
+          {category}s 
         </Typography>
 
         <Grid container spacing={2}>

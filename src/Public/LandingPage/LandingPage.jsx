@@ -33,9 +33,9 @@ function LandingPage() {
 
   const arrangeData = async () => {
     setLoading(true);
-    const Mendata = await fetchProducts('men');
-    const Womendata = await fetchProducts('women');
-    const Kidsdata = await fetchProducts('kids');
+    const Mendata = await fetchProducts('t-shirt');
+    const Womendata = await fetchProducts('shirt');
+    const Kidsdata = await fetchProducts('pant');
 
     var finalMenData = [],
       finalWomenData = [],
@@ -119,7 +119,7 @@ function LandingPage() {
 
         <ImageCarousel images={images} />
         <Typography variant="h3" style={{ marginTop: '40px', marginBottom: '40px' }}>
-          Men
+          Shirts
         </Typography>
 
         <Grid container spacing={2}>
@@ -138,11 +138,28 @@ function LandingPage() {
         </Grid>
 
         <Typography variant="h3" style={{ marginTop: '40px', marginBottom: '40px' }}>
-          Women
+          T-Shirts
         </Typography>
         <Grid container spacing={2}>
           {womenProducts
             ? womenProducts.map((item, index) => (
+                <Grid item xs={12} md={4} key={index}>
+                  <ProductCard imageURL={item.imageURL} 
+                  ProductTitle={item.ProductTitle}
+                  ProductPrice={item.ProductPrice}
+                  _id={item._id}
+                  imagwWidth="300px" imageHeight="500px" />
+                </Grid>
+              ))
+            : null}
+        </Grid>
+
+        <Typography variant="h3" style={{ marginTop: '40px', marginBottom: '40px' }}>
+          Pants
+        </Typography>
+        <Grid container spacing={2}>
+          {kidsProducts
+            ? kidsProducts.map((item, index) => (
                 <Grid item xs={12} md={4} key={index}>
                   <ProductCard imageURL={item.imageURL} 
                   ProductTitle={item.ProductTitle}
