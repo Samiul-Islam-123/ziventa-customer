@@ -10,7 +10,12 @@ import {
   Grid,
   Icon,
   IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   TextField,
+  DialogContentText,
   Typography,
 } from "@mui/material";
 import apiURL from "../../apiURL";
@@ -41,6 +46,8 @@ function Cart(props) {
   const [loading, setLoading] = useState(false);
   const [productQuantities, setProductQuantities] = useState({});
   const [totalProductPrice, setTotalProductPrice] = useState(0);
+
+  const [OpenDialog, setOpenDialog] = useState(false);
 
   const [showCartData, setShowCartData] = useState(false);
   const [userAddress, setUserAddress] = useState(null);
@@ -117,8 +124,9 @@ function Cart(props) {
     }
   }, [CartData, productQuantities]);
 
-  const placeOrder = async (CartData) => {
+  const placeOrder = async (CartData, paidStatus) => {
     console.log('PLacing Order...');
+    console.log(Cart)
     if (CartData) {
       const address = localStorage.getItem('address');
       const addressJSON = JSON.parse(address);
@@ -128,9 +136,10 @@ function Cart(props) {
         products: CartData.Cartproducts,
         address: addressJSON.address,
         Phone: addressJSON.phone,
+        paidStatus : paidStatus
       });
 
-      if (res.data.message === 'OK') 
+      if (res.data.message === 'OK')
         return res.data.placedOrderID;
 
       else {
@@ -168,7 +177,7 @@ function Cart(props) {
     };
 
     //const placedOrderID = placeOrder(DatatoBeStored)
-    const placedOrderID =await placeOrder(DatatoBeStored)
+    const placedOrderID = await placeOrder(DatatoBeStored, true)
     //console.log(placedOrderID)
 
     //processes for Stripe Payment
@@ -185,7 +194,7 @@ function Cart(props) {
 
     const res = await axios.post(`${apiURL}/app/client/checkout-payment`, {
       products: products,
-      placedOrderID : placedOrderID
+      placedOrderID: placedOrderID
     });
     const session = res.data;
 
@@ -337,9 +346,12 @@ function Cart(props) {
                         justifyContent: "center",
                       }}
                     >
-                      <Button onClick={checkoutPayment} variant="contained">
+                      <Button onClick={() => {
+                        setOpenDialog(true);
+                      }} variant="contained">
                         Proceed to checkout
                       </Button>
+
                     </div>
                   </Grid>
                   <Grid item xs={2}>
@@ -366,6 +378,77 @@ function Cart(props) {
             </Card>
           )}
 
+          <Dialog
+            open={OpenDialog}
+            onClose={() => {
+              setOpenDialog(false);
+            }}
+          >
+            <DialogTitle>Choose a Payment Methods</DialogTitle>
+            <DialogContent align="center">
+
+              <Grid item xs={6} margin={"10px"}>
+                <Button fullWidth variant="contained" onClick={checkoutPayment}>
+                  Pay with Card
+                </Button>
+              </Grid>
+
+              <Grid item xs={6} margin={"10px"}>
+                <Button fullWidth variant="contained" onClick={()=>{
+                  alert("This feature is under Construction")
+                }}>
+                  UPI
+                </Button>
+              </Grid>
+
+              <Grid item xs={6} margin={"10px"}>
+                <Button fullWidth variant="contained" onClick={async()=>{
+                  const token = Cookies.get('access_token');
+
+
+                  //arrainging data for cartproducts
+              
+                  const Cartproducts = [];
+                  CartData.forEach((item) => {
+                    Cartproducts.push({
+                      productID: item._id,
+                      Qty: productQuantities[item._id],
+                    });
+                  });
+              
+                  //Storing Cart Data into Local Storage
+                  const DatatoBeStored = {
+                    Cartproducts: Cartproducts,
+                    token: token,
+                    OrderPrice: totalProductPrice
+              
+                  };
+              
+                  //const placedOrderID = placeOrder(DatatoBeStored)
+                  const placedOrderID = await placeOrder(DatatoBeStored, false)
+                  if(placedOrderID){
+                    setOpenDialog(false)
+                    navigate('/profile')
+                  }
+
+                  else{
+                    alert("Some Error Occured :(")
+                  }
+                }}>
+                  Cash on Delivery
+                </Button>
+              </Grid>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                color="primary"
+
+              >
+                Cancel
+              </Button>
+            </DialogActions>
+          </Dialog>
+
         </>) : (<>
           <Typography variant="h7" margin={"10px"}>
             Please Enter your Address and Phone number to view Cart Details and Place Order
@@ -377,29 +460,29 @@ function Cart(props) {
             setUserPhone(e.target.value)
           }} variant="outlined" fullWidth label="Enter your Contact Number" />
 
-<Button
-  variant="contained"
-  onClick={() => {
-    if (userAddress && userPhone) {
-      // Check if userPhone contains only numeric characters
-      const isNumeric = /^\d+$/.test(userPhone);
+          <Button
+            variant="contained"
+            onClick={() => {
+              if (userAddress && userPhone) {
+                // Check if userPhone contains only numeric characters
+                const isNumeric = /^\d+$/.test(userPhone);
 
-      if (isNumeric) {
-        localStorage.setItem('address', JSON.stringify({
-          address: userAddress,
-          phone: userPhone
-        }));
-        checkLocalData();
-      } else {
-        alert("Phone number should contain only numeric characters");
-      }
-    } else {
-      alert("Please enter both fields");
-    }
-  }}
->
-  Save Address
-</Button>
+                if (isNumeric) {
+                  localStorage.setItem('address', JSON.stringify({
+                    address: userAddress,
+                    phone: userPhone
+                  }));
+                  checkLocalData();
+                } else {
+                  alert("Phone number should contain only numeric characters");
+                }
+              } else {
+                alert("Please enter both fields");
+              }
+            }}
+          >
+            Save Address
+          </Button>
 
 
         </>)

@@ -199,6 +199,10 @@ function OrderHistory(props) {
                                   Qty : {pitem.Qty}
                                 </Typography>
 
+                                <Typography variant="h5">
+                                  Payment Status : {item.paid ? (<>Paid</>) : (<>Cash on Delivery</>)}
+                                </Typography>
+
                                 <div
                                   style={{
                                     marginTop: "10px",

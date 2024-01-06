@@ -18,7 +18,7 @@ import ReviewProducts from '../Private/Profile/ReviewProducts/ReviewProducts';
 function RoutesController() {
   return (
     <>
-        <Routes>
+      <Routes>
         <Route exact path="/" element={<LandingPage />} />
         <Route exact path="/login" element={<Login />} />
         <Route exact path="/signup" element={<Signup />} />
@@ -40,32 +40,32 @@ function RoutesController() {
           path="/products/details/:ProductID"
           element={<ProductDetails checkAuthentication={checkAuthentication} />}
         />
-        
+
         <Route
           exact
           path="/cart"
           element={<Cart checkAuthentication={checkAuthentication} />}
         />
 
-<Route
+        <Route
           exact
           path="/cart/:orderID"
           element={<Cart checkAuthentication={checkAuthentication} />}
         />
 
-<Route
+        <Route
           exact
           path="/profile"
           element={<OrderHistory checkAuthentication={checkAuthentication} />}
         />
 
-<Route
+        <Route
           exact
           path="/review"
           element={<ReviewProducts checkAuthentication={checkAuthentication} />}
         />
 
-<Route
+        <Route
           exact
           path="/success/:ID"
           element={<Success />}

@@ -1,4 +1,4 @@
-import './App.css';
+  import './App.css';
 import { CssBaseline, ThemeProvider, Typography } from "@mui/material";
 import { createTheme } from "@mui/material/styles"; // Import createTheme from @mui/material/styles
 import NavBar from './Public/NavBar/NavBar';
@@ -8,7 +8,7 @@ const theme = createTheme({
   palette: {
     mode: "dark",
     primary: {
-      main: '#333333'
+      main: '#8bc34a'
     },
     secondary: {
       main: "#FFD700"
