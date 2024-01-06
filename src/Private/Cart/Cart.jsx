@@ -136,7 +136,7 @@ function Cart(props) {
         products: CartData.Cartproducts,
         address: addressJSON.address,
         Phone: addressJSON.phone,
-        paidStatus : paidStatus
+        paidStatus: paidStatus
       });
 
       if (res.data.message === 'OK')
@@ -203,10 +203,81 @@ function Cart(props) {
     const result = stripe.redirectToCheckout({
       sessionId: session.id,
     });
-
-
-
   };
+
+
+  const amount = 500;
+  const currency = "INR";
+  const receiptId = "order_rcptid_11";
+
+  const paymentHandler = async (e) => {
+    const response = await fetch(`${apiURL}/payment/order`, {
+      method: "POST",
+      body: JSON.stringify({
+        amount,
+        currency,
+        receipt: receiptId,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const order = await response.json();
+    console.log(order);
+
+    var options = {
+      key: `${process.env.REACT_APP_RAZORPAY_KEY}`, // Enter the Key ID generated from the Dashboard
+      amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+      currency,
+      name: "Acme Corp", //your business name
+      description: "Test Transaction",
+      image: "https://example.com/your_logo",
+      order_id: order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+      handler: async function (response) {
+        const body = {
+          ...response,
+        };
+
+        const validateRes = await fetch(
+          `${apiURL}/payment/order/validate`,
+          {
+            method: "POST",
+            body: JSON.stringify(body),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const jsonRes = await validateRes.json();
+        console.log(jsonRes);
+      },
+      prefill: {
+        //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
+        name: "Web Dev Matrix", //your customer's name
+        email: "webdevmatrix@example.com",
+        contact: "9000000000", //Provide the customer's phone number for better conversion rates
+      },
+      notes: {
+        address: "Razorpay Corporate Office",
+      },
+      theme: {
+        color: "#3399cc",
+      },
+    };
+    var rzp1 = new window.Razorpay(options);
+    rzp1.on("payment.failed", function (response) {
+      alert(response.error.code);
+      alert(response.error.description);
+      alert(response.error.source);
+      alert(response.error.step);
+      alert(response.error.reason);
+      alert(response.error.metadata.order_id);
+      alert(response.error.metadata.payment_id);
+    });
+    rzp1.open();
+    e.preventDefault();
+  };
+
 
   return (
     <Container>
@@ -394,20 +465,18 @@ function Cart(props) {
               </Grid>
 
               <Grid item xs={6} margin={"10px"}>
-                <Button fullWidth variant="contained" onClick={()=>{
-                  alert("This feature is under Construction")
-                }}>
+                <Button fullWidth variant="contained" onClick={paymentHandler}>
                   UPI
                 </Button>
               </Grid>
 
               <Grid item xs={6} margin={"10px"}>
-                <Button fullWidth variant="contained" onClick={async()=>{
+                <Button fullWidth variant="contained" onClick={async () => {
                   const token = Cookies.get('access_token');
 
 
                   //arrainging data for cartproducts
-              
+
                   const Cartproducts = [];
                   CartData.forEach((item) => {
                     Cartproducts.push({
@@ -415,23 +484,23 @@ function Cart(props) {
                       Qty: productQuantities[item._id],
                     });
                   });
-              
+
                   //Storing Cart Data into Local Storage
                   const DatatoBeStored = {
                     Cartproducts: Cartproducts,
                     token: token,
                     OrderPrice: totalProductPrice
-              
+
                   };
-              
+
                   //const placedOrderID = placeOrder(DatatoBeStored)
                   const placedOrderID = await placeOrder(DatatoBeStored, false)
-                  if(placedOrderID){
+                  if (placedOrderID) {
                     setOpenDialog(false)
                     navigate('/profile')
                   }
 
-                  else{
+                  else {
                     alert("Some Error Occured :(")
                   }
                 }}>
@@ -442,7 +511,9 @@ function Cart(props) {
             <DialogActions>
               <Button
                 color="primary"
-
+                onClick={()=>{
+                  setOpenDialog(false)
+                }}
               >
                 Cancel
               </Button>
